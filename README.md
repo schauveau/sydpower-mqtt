@@ -65,17 +65,20 @@ If the Mosquitto Client utilities are installed, you can use `mosquitto_sub` to 
 The command line syntax is
 
 ```
-python3 GLOBAL-OPTIONS...] sydpower-mqtt.py [COMMAND] [COMMAND-OPTIONS...] 
+python3 [GLOBAL-OPTIONS...] sydpower-mqtt.py [COMMAND] [COMMAND-OPTIONS...] 
 ```
 
-- Use `-h` or `--help` before the command to get global help.
-- Use `-h` or `--help` after the command to get help about that command.
+- Use `-h` or `--help` before the COMMAND to get global help.
+- Use `-h` or `--help` after the COMMAND to get help about that specific command.
 
 As of May 12th 2025, the following commands are implemented:
-  - `monitor` : Display all MQTT messages and when possible, MODBUS messages are partially decoded.
+  - `monitor` : Display all MODBUS-MQTT messages with partial decoding (when possible).
   - `trace` : Trace changes to input and holding registers. 
   - `help` : Display additional help
     - register names
     - interpretation of status bits
     - ...
 
+## MQTT-MODBUS protocol
+
+All known informatons about the MQTT-MODBUS protocol use by Sydpower can be found in [MQTT-MODBUS.md](MQTT-MODBUS.md)
