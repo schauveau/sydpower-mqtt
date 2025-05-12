@@ -4,6 +4,8 @@ This repository provides sydpower-mqtt.py, a Python3 script to help in the rever
 
 Disclaimer: This tool is not affiliated to SYDPOWER, an OEM company that provides portable power stations for other companies such as FOSSIBOT and AFERIY.
 
+In its current state, the script is only useful if the device MQTT traffic is redirected to a local MQTT server (see below)
+
 ## About SYDPOWER
 
 The product page on SYDPOWER web page https://www.sydpower.com list mulptiple portable power stations:
