@@ -83,3 +83,22 @@ As of May 12th 2025, the following commands are implemented:
 
 All known informatons about the MQTT-MODBUS protocol used by Sydpower can be found in [MQTT-MODBUS.md](MQTT-MODBUS.md)
 
+## How to use the script ? 
+
+The monitor command is pretty straightforward but not that useful.
+
+The trace command will display all changes to a selected set of registers.
+
+Quick summary:
+   - There are two kinds of registers:
+   - 80 input registers and 80 holding registers.
+   - Each registers contain a 16 bit integer.
+   - The input registers are read-only.
+   - The olding registers shall be writable but in practice, most of them are read-only.
+   - Input and Holding registers are respectively given names starting with 'i' and 'h' 
+   - For unknown registers the name is simply 'i' or 'h' followed by the register number.
+
+The `help` command will display all register names and a few other useful information.
+
+See the file [MQTT-MODBUS.md](MQTT-MODBUS.md) for a detailled description of each register.
+

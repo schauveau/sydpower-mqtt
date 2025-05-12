@@ -62,9 +62,7 @@ NAMED_INPUT_REGISTERS = {
     36:'iUsbOutputPower5', # USB-C PD 20W
     37:'iUsbOutputPower6', # USB-C PD 20W
     39:'iTotalOutputPower',
-    41:'iStatusBits',
-    # 42: ?????            # sum of 0x03d8 (USB output) and 0xe000 (DC output)   
-    # 48: ?????            # The source of AC output? 0x4000 when 0x8000 when AC input enabled.  
+    41:'iStatusBits', 
     53:'iSOC1',
     55:'iSOC2',
     56:'iSOC',
@@ -196,10 +194,10 @@ def help_iStatusBits():
     print("  a = bit 3  = AC input is connected")
     print("  A = bit 2  = Always identical to bit 11?")
     print("  a = bit 1  = Always identical to bit 3?")
-    print("Other bits are unknown and will be with marked with '?' when set")
+    print("Other bits are unknown and will be marked with '?' when set")
     
     
-# Entries in that dictionary specify an optional function to format the
+# Entries in that dictionary specify a function to format the
 # register values. The index is the register name while the value is 
 # a callable that expects a single integer as argument.
 #
@@ -213,11 +211,6 @@ for i in HREG_SETS['hOTHER'] | IREG_SETS['iOTHER']:
     if i not in FORMATTER:
         FORMATTER[i] = format_dec_hex
 
-
-
-
-#print(HREG_INDEX_TO_NAME)
-#print(HREG_NAME_TO_INDEX)
 
 def timestamp():
     return "["+datetime.datetime.now().isoformat()+"]"
@@ -256,7 +249,7 @@ def help_register_names():
             print('  {:2d} {}'.format(i, hreg_index_to_name(i))) 
     print('or \'h<NUMBER>\' for other holding registers' )
     print()
-    print("Aliases:")
+    print("Named register groups:")
     print(" - iALL,   hALL,   ALL   : all input, holding or both registers")
     print(" - iNAMED, hNAMED, NAMED : all named input, holding or both registers")
     print(" - iOTHER, hOTHER, OTHER : all unnamed input, holding or both registers")
