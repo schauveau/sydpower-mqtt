@@ -5,7 +5,9 @@
 This document is based on https://github.com/iamslan/fossibot (HomeAssistant integration for Fossibot batteries)
 and some personal experiments on my F2400.
 
-Note: This document is not applicable to the first generation of F2400 that lacks WiFi capabilities. 
+Note: This document is not applicable to the first generation of F2400 that lacks WiFi capabilities.
+
+Note: The same protocol is probably used by AFERIY devices and other brands related to Sydpower. 
 
 > [!CAUTION]
 **Writing bad values in unknown registers can BRICK your device. Remember that the information provided in that document are not official. Use at your own risk!!!!**
@@ -16,6 +18,13 @@ Note: This document is not applicable to the first generation of F2400 that lack
 - 2025-04-08 add Key Sound (holding 56) 
 - 2025-04-08 add note about delay between requests
 - 2025-04-12 update bit 2 of input register 41 (not EPS) 
+- 2025-04-12 add iregs 30,31,34,35,36,37 as output power of USB ports   
+- 2025-04-12 add ireg 9 as output power of DC car port (or of all DC ports?)   
+- 2025-04-12 add ireg 58 and 59 : time to full or empty
+- 2025-04-12 add ireg 3 as charging power
+- 2025-04-12 add ireg 2 as AC charging rate
+- 2025-04-12 add ireg 57 as AC Charging Booking
+
 
 ## How to connect the Fossibot to a local MQTT server ?
 
@@ -249,30 +258,75 @@ ABCDEF123456/device/response/client/data : 11 06 (0039 0001) [979a]
 
 ## Desciption of the Input registers
 TODO
-
+### Input register 3 - Charging Power
+- Provide the power used to charge the battery
+  - from AC, DC or both? More tests are required!
+- value is given in Watts
 ### Input register 4 - DC Input Power
-- Hold the DC input power
+- Provide the DC input power (from the XT90 port)
 - value is given in Watts
 ### Input register 6 - Total Input Power 
-- Hold the total input power (AC+DC)
+- Provide the total input power (AC+DC)
 - value is given in Watts 
+### Input register 9 - DC Ouput Power 1 
+- Provide the output power of the DC car-charging port.
+  - Or of all DC outputs? More tests are needed! 
+- value is given in 1/10 Watts 
+### Input register 15 - Led Power
+- Provide the Power consumed by the front led (probably)
+- This is 0 when off and 10 when on (so 1.0 W)  
+- Value is given in 1/10 Watts
 ### Input register 18 - AC Output Voltage 
-- Hold the AC output voltage.
+- Provide the AC output voltage.
 - value is given in 1/10 Volts.
 ### Input register 19 - AC Output Frequency
-- Hold the AC output frequency
+- Provide the AC output frequency
 - Only when AC output is enabled.
 - Value is given in 1/10 Hz
+### Input register 20 - AC Output Power
+- Provide the AC output power
+- Value is given in Watts
 ### Input register 21 - AC Input Voltage 
-- Hold the AC input voltage
+- Provide the AC input voltage
 - Only when AC input is connected to grid.
 - Value is given in 1/10 Volts
 ### Input register 22 - AC Input Frequency
-- Hold the AC input frequency
+- Provide the AC input frequency
 - Only when AC input is connected to grid.
 - Value is given in 1/100 Hz
+### Input register 25 - Led State
+- Provide the state of the front led
+  - 0 : Off
+  - 1 : On mode
+  - 2 : SOS mode
+  - 3 : Flash mode
+- see also holding register 27
+### Input register 30 - USB Output Power 1
+- Provide the output power of the 1st USB port
+- Fossibot F2400: one of the USB-A ports
+- Value is given in 1/10 Watt
+### Input register 31 - USB Output Power 2
+- Provide the output power of the 2nd USB port
+- Fossibot F2400: one of the USB-A ports
+- Value is given in 1/10 Watt
+### Input register 34 - USB Output Power 3
+- Provide the output power of the 2nd USB port
+- Fossibot F2400: the USB-C 100W port
+- Value is given in 1/10 Watt
+### Input register 35 - USB Output Power 4
+- Provide the output power of the 2nd USB port
+- Fossibot F2400: one of the USB-C 20W ports 
+- Value is given in 1/10 Watt
+### Input register 36 - USB Output Power 5
+- Provide the output power of the 2nd USB port
+- Fossibot F2400: one of the USB-C 20W ports
+- Value is given in 1/10 Watt
+### Input register 37 - USB Output Power 6
+- Provide the output power of the 2nd USB port
+- Fossibot F2400: one of the USB-C 20W ports 
+- Value is given in 1/10 Watt
 ### Input register 39 - Total output   
-- Hold the total output voltage so AC+DC+USB
+- Provide the total output voltage so AC+DC+USB
 - Value is given in Watts.
 ### Input register 41 - Status bits
 - bit 15, mask 0x8000 = Always zero?
@@ -309,10 +363,17 @@ TODO
   - AC output is 220V or 230V
   - The state of the Overload Protection Button
   - The Fan
-  
+### Input register 42
+  - For the F2400:
+     - contains the sum of 0x03d8 (if USB output) and 0xe000 (if DC output)
+### Input register 48
+  - For the F2400:
+     - contains 0x8000 while AC charging otherwise 0x4000.
+     - can also briefly contain 0x0000  
+     
 ### Input register 53 - State of Charge S1
   
-  - Hold the state of charge of the 1st extension battery
+  - Provide the state of charge of the 1st extension battery
   - 0 when the extension battery is missing
   - otherwise a value between 10 and 1010.
      - for example, value 504 means 49.4%      
@@ -322,10 +383,22 @@ TODO
   - Similar to input register 53 but for the 2nd extension battery.
   
 ### Input register 56 - State of Charge (SOC)
-  - Hold the state of charge of the main battery. 
+  - Provide the state of charge of the main battery. 
   - Value ranges is 0 to 1000. For instance `435` means `43.5%` 
 
+### Input register 57 - AC Charging Booking
+ - If non-zero, this is a timeout in minute during which AC charging will be disabled.
+ - See also the holding register 66 
+ - The official app allows up to 24 hours so a maximum of `24*60-1 = 1439` minutes but bigger values may very well be possible (NOT TESTED)
 
+### Input register 58 - Time To Full
+  - Provide the estimated time in minutes until the battery is fully
+    charged or 0 when the battery is currently discharging
+
+### Input register 59 - Time To Empty
+  - Provide the estimated time in minutes until the battery is fully
+    discharged or 0 when the battery is currently charging.
+    
 ## Description of the Holding registers
 
 ### Holding register 13 (0x0D) - AC Charging Rate
@@ -397,7 +470,7 @@ TODO
 
 ### Holding Register 63 (0x3F) - AC Charging Booking
  - If non-zero, this is a timeout in minute during which AC charging will be disabled.
- - read-write
+ - See also the holding input register 57 
  - The official app allows up to 24 hours so a maximum of `24*60-1 = 1439` minutes but bigger values may very well be possible (NOT TESTED)
 
 ### Holding Register 66 (0x42) - Discharge Lower Limit

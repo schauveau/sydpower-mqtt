@@ -45,17 +45,32 @@ IREG_COUNT=80
 # index.
 #
 NAMED_INPUT_REGISTERS = {
+    2:'iAcChargingRate' ,  
+    3:'iChargingPower' ,
     4:'iDcInputPower' ,
     6:'iTotalInputPower' ,
+    9:'iDcOuputPower1',   
     18:'iAcOutputVoltage',
     19:'iAcOutputFreq',
+    20:'iAcOutputPower',
     21:'iAcInputVoltage',
     22:'iAcInputFreq',
+    30:'iUsbOutputPower1', # USB-A  
+    31:'iUsbOutputPower2', # USB-A 
+    34:'iUsbOutputPower3', # USB-C PD 100W  
+    35:'iUsbOutputPower4', # USB-C PD 20W 
+    36:'iUsbOutputPower5', # USB-C PD 20W
+    37:'iUsbOutputPower6', # USB-C PD 20W
     39:'iTotalOutputPower',
     41:'iStatusBits',
+    # 42: ?????            # sum of 0x03d8 (USB output) and 0xe000 (DC output)   
+    # 48: ?????            # The source of AC output? 0x4000 when 0x8000 when AC input enabled.  
     53:'iSOC1',
     55:'iSOC2',
-    56:'iSOC',    
+    56:'iSOC',
+    57:'iAcChargingBooking',
+    58:'iTimeToFull',
+    59:'iTimeToEmpty',
 }
 
 
@@ -66,7 +81,7 @@ NAMED_INPUT_REGISTERS = {
 # index.
 #
 NAMED_HOLDING_REGISTERS = {
-    13:'hAcChargingRate' ,    
+    13:'hAcChargingRate' ,   
     20:'hMaxDcChargingCurrent' ,
     24:'hUsbOutputSwitch' ,  
     25:'hDcOutputSwitch' , 
@@ -78,7 +93,7 @@ NAMED_HOLDING_REGISTERS = {
     60:'hAcStandbyTime',
     61:'hDcStandbyTime',
     62:'hScreenRestTime',
-    63:'hAcBookingCharging',
+    63:'hAcChargingBooking',
     66:'hDischargeLowerLimit',
     67:'hAcChargingUpperLimit',
     68:'hWholeMachineUnusedTime',
@@ -98,12 +113,42 @@ HREG_SETS={}
 HREG_SETS['hALL']   = set( HREG_NAME_TO_INDEX.keys() )
 HREG_SETS['hNAMED'] = set( NAMED_HOLDING_REGISTERS.values() )
 HREG_SETS['hOTHER'] = HREG_SETS['hALL'].difference(HREG_SETS['hNAMED']) 
+HREG_SETS['hUSB']   = set( [ 'hUsbOutputSwitch',
+                             'hUsbStandbyTime',
+                            ] )
+HREG_SETS['hAC']   = set( [ 'hAcChargingRate',
+                            'hAcOutputSwitch',
+                            'hAcSilentCharging',
+                            'hAcStandbyTime',
+                            'hAcChargingBooking',
+                            'hAcChargingUpperLimit',
+                           ] )
+
 
 # Prefined sets of mappig register names
 IREG_SETS={} 
 IREG_SETS['iALL']   = set( IREG_NAME_TO_INDEX.keys() )
 IREG_SETS['iNAMED'] = set( NAMED_INPUT_REGISTERS.values() )
 IREG_SETS['iOTHER'] = IREG_SETS['iALL'].difference(IREG_SETS['iNAMED']) 
+IREG_SETS['iUSB']   = set( [ 'iStatusBits',
+                             'iUsbOutputPower1',
+                             'iUsbOutputPower2',
+                             'iUsbOutputPower3',
+                             'iUsbOutputPower4',
+                             'iUsbOutputPower5',
+                             'iUsbOutputPower6',
+                            ] )
+IREG_SETS['iAC']   = set( [ 'iStatusBits',
+                            'iAcOutputVoltage',
+                            'iAcOutputFreq',
+                            'iAcOutputPower',
+                            'iAcChargingBooking',
+                            'iAcInputVoltage',
+                            'iAcInputFreq' ])
+
+
+
+
 
 def format_dec(v:int):
     return "{:<5d}".format(v)
@@ -215,6 +260,8 @@ def help_register_names():
     print(" - iALL,   hALL,   ALL   : all input, holding or both registers")
     print(" - iNAMED, hNAMED, NAMED : all named input, holding or both registers")
     print(" - iOTHER, hOTHER, OTHER : all unnamed input, holding or both registers")
+    print(" - iUSB,   hUSB,   USB   : all USB input, holding or both registers")
+    print(" - iAC,    hAC,    AC    : all AC input, holding or both registers")
     print()
 
 #
@@ -246,6 +293,12 @@ def parse_register_names(names:list):
         elif name=='OTHER':
             holdings.update(HREG_SETS['hOTHER'])
             inputs.update(IREG_SETS['iOTHER'])
+        elif name=='USB':
+            holdings.update(HREG_SETS['hUSB'])
+            inputs.update(IREG_SETS['iUSB'])            
+        elif name=='AC':
+            holdings.update(HREG_SETS['hAC'])
+            inputs.update(IREG_SETS['iAC'])            
         else:            
             print("Error: Unknown register '"+name+"'")
             sys.exit(1)
@@ -622,7 +675,8 @@ class AppMonitor(SydpowerApp):
 
         print( "{} {}({}){}".format(kind, func,
                                     ",".join([str(x) for x in args]),
-                                    payload_str  ) )
+                                    payload_str  )
+               ,flush = True)
  
 # Trace changes to registers
 class AppTrace(SydpowerApp):
@@ -692,7 +746,7 @@ class AppTrace(SydpowerApp):
                         if self.args.timestamp:
                             print(now,'',end='')
                         fmtr=FORMATTER.get(reg,format_dec)
-                        print(reg,"=",fmtr(new))
+                        print(reg,"=",fmtr(new),flush = True)
 
                         
         elif func=="ReadHoldingRegisters":
@@ -708,7 +762,7 @@ class AppTrace(SydpowerApp):
                         if self.args.timestamp:
                             print(now,'',end='')
                         fmtr=FORMATTER.get(reg,format_dec)
-                        print(reg,"=",fmtr(new))
+                        print(reg,"=",fmtr(new),flush = True)
 
 
 
@@ -746,8 +800,7 @@ def main():
                      action='extend',
                      help="a register or register group (default ALL)")
     
-    sub = subparsers.add_parser('info', help='Information about the registers (names, ...)')
-    
+    sub = subparsers.add_parser('help', help='More help')
     
     args = parser.parse_args(None)
 
@@ -760,7 +813,7 @@ def main():
             AppMonitor(args).run()
         elif cmd in [ "trace" ] :
             AppTrace(args).run()
-        elif cmd in [ "info" ] :
+        elif cmd in [ "help" ] :
             help_register_names()
             help_iStatusBits()
         else :

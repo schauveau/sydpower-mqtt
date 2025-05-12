@@ -1,8 +1,8 @@
-# sydpower-mqtt - debug tool for the SYDPOWER mqtt protocol
+# sydpower-mqtt.py
 
-This repository provides sydpower-mqtt.py a tool to help in the reverse engineering effort on the SYDPOWER/FOSSIBOT/AFERIY mqtt protocol. 
+This repository provides sydpower-mqtt.py, a Python3 script to help in the reverse engineering efforts of the SYDPOWER/FOSSIBOT/AFERIY mqtt protocol.  
 
-Disclaimer: This repository is not affiliated to SYDPOWER, an OEM company that provides portable power stations for other companies such as FOSSIBOT and AFERIY.
+Disclaimer: This tool is not affiliated to SYDPOWER, an OEM company that provides portable power stations for other companies such as FOSSIBOT and AFERIY.
 
 ## About SYDPOWER
 
@@ -65,10 +65,10 @@ If the Mosquitto Client utilities are installed, you can use `mosquitto_sub` to 
 The command line syntax is
 
 ```
-python3 [GLOBAL-OPTIONS...] sydpower-mqtt.py [COMMAND] [COMMAND-OPTIONS...] 
+python3 sydpower-mqtt.py [GLOBAL-OPTIONS...] [COMMAND] [COMMAND-OPTIONS...] 
 ```
 
-- Use `-h` or `--help` before the COMMAND to get global help.
+- Use `-h` or `--help` before the COMMAND to get help about the global options.
 - Use `-h` or `--help` after the COMMAND to get help about that specific command.
 
 As of May 12th 2025, the following commands are implemented:
@@ -81,4 +81,5 @@ As of May 12th 2025, the following commands are implemented:
 
 ## MQTT-MODBUS protocol
 
-All known informatons about the MQTT-MODBUS protocol use by Sydpower can be found in [MQTT-MODBUS.md](MQTT-MODBUS.md)
+All known informatons about the MQTT-MODBUS protocol used by Sydpower can be found in [MQTT-MODBUS.md](MQTT-MODBUS.md)
+
