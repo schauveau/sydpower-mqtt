@@ -98,7 +98,7 @@ Quick summary:
    - For other registers, the name is simply 'i' or 'h' followed by the register number.
    - Use the `help` command to display all register names and a few other useful information.
    - See the file [MQTT-MODBUS.md](MQTT-MODBUS.md) for a detailled description of each register.
-   - The trace command also recognize a few register groups. For example, `iNAMED` means all input register with an explicit name while `iOTHER` means all other input registers (i.e. those of the form i<NUMBER>).
+   - The trace command also recognize a few register groups. For example, `iNAMED` means all input register with an explicit name while `iOTHER` means all other input registers (i.e. those of the form `i<NUMBER>`).
    
 
 Important: It is strongly advised to run the trace command with the option `-q` to explicitly query register updates every few seconds. Without `-q`, registers may not be updated for a very long time.
@@ -113,7 +113,7 @@ python3 sydpower-mqtt.py trace -q iNAMED
 ```
 python3 sydpower-mqtt.py trace -q iAcOutputPower iTotalOutputPower 
 ```
-- Trace all unamed registers (those of the form i<NUMBER> and h<NUMBER>)
+- Trace all unamed registers (those of the form `i<NUMBER>` and `h<NUMBER>`)
 with timestamps
 ```
 python3 sydpower-mqtt.py trace -t -q OTHER 
