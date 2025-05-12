@@ -90,15 +90,31 @@ The monitor command is pretty straightforward but not that useful.
 The trace command will display all changes to a selected set of registers.
 
 Quick summary:
-   - There are two kinds of registers:
    - 80 input registers and 80 holding registers.
-   - Each registers contain a 16 bit integer.
+   - Each register contains a 16 bit integer.
    - The input registers are read-only.
-   - The olding registers shall be writable but in practice, most of them are read-only.
-   - Input and Holding registers are respectively given names starting with 'i' and 'h' 
-   - For unknown registers the name is simply 'i' or 'h' followed by the register number.
+   - The holding registers shall be writable but in practice, most of them are read-only.
+   - Any Input or Holding registers whose behavior is known is given a proper name starting with either 'i' or 'h'. 
+   - For other registers, the name is simply 'i' or 'h' followed by the register number.
+   - Use the `help` command to display all register names and a few other useful information.
+   - See the file [MQTT-MODBUS.md](MQTT-MODBUS.md) for a detailled description of each register.
+   - The trace command also recognize a few register groups. For example, `iNAMED` means all input register with an explicit name while `iOTHER` means all other input registers (i.e. those of the form i<NUMBER>).
+   
 
-The `help` command will display all register names and a few other useful information.
+Important: It is strongly advised to run the trace command with the option `-q` to explicitly query register updates every few seconds. Without `-q`, registers may not be updated for a very long time.
 
-See the file [MQTT-MODBUS.md](MQTT-MODBUS.md) for a detailled description of each register.
+Examples:
 
+- Trace all named input registers 
+```
+python3 sydpower-mqtt.py trace -q iNAMED 
+```
+- Trace iAcOutputPower and iTotalOutputPower  
+```
+python3 sydpower-mqtt.py trace -q iAcOutputPower iTotalOutputPower 
+```
+- Trace all unamed registers (those of the form i<NUMBER> and h<NUMBER>)
+with timestamps
+```
+python3 sydpower-mqtt.py trace -t -q OTHER 
+```
